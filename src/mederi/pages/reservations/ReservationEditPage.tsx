@@ -52,7 +52,7 @@ export const ReservationEditPage = () => {
       endTime: formattedEndTime,
     };
 
-    await updateReservation(reservationId!, payload); //error en el backend
+    await updateReservation(reservationId!, payload); //todo: error en el backend
     navigate(`/reservations`);
   }
 

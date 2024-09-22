@@ -6,6 +6,7 @@ import { Reservation } from '../../../domain/models';
 import { MederiLayout } from '../../layout'
 import { formatDate } from '../../../config/helpers';
 import { Pagination } from '../../../shared';
+import { ReservationStatus } from '../../../domain/enums';
 
 export const ReservationByRoomPage = () => {
 
@@ -20,6 +21,7 @@ export const ReservationByRoomPage = () => {
 
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "10", 10);
+    const status: ReservationStatus = (searchParams.get("status") as ReservationStatus) || ReservationStatus.PENDIENTE;
 
     const fetchReservations = useCallback(async () => {
         if (roomId) {
@@ -35,8 +37,14 @@ export const ReservationByRoomPage = () => {
     }, [fetchReservations]);
 
     const handlePageChange = (newPage: number) => {
-        navigate(`?page=${newPage}&limit=${limit}`);
-        window.location.href = `?page=${newPage}&limit=${limit}`;
+        navigate(`?page=${newPage}&limit=${limit}&status=${status}`);
+        window.location.href = `?page=${newPage}&limit=${limit}&status=${status}`;
+    };
+
+    const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        const newStatus = event.target.value as ReservationStatus;
+        navigate(`?page=${page}&limit=${limit}&status=${newStatus}`);
+        window.location.href = `?page=${page}&limit=${limit}&status=${newStatus}`;
     };
 
     if (isLoading) {
@@ -58,6 +66,20 @@ export const ReservationByRoomPage = () => {
                     </h1>
                 </div>
 
+                <div className="mb-4">
+                    <label htmlFor="status" className="mr-2 font-semibold text-[#F05A03]">Filtrar por estado:</label>
+                    <select
+                        id="status"
+                        className="px-4 py-2 border rounded"
+                        value={status}
+                        onChange={handleStatusChange}
+                    >
+                        <option value={ReservationStatus.PENDIENTE}>Pendiente</option>
+                        <option value={ReservationStatus.CONFIRMADO}>Confirmado</option>
+                        <option value={ReservationStatus.CANCELADO}>Cancelado</option>
+                    </select>
+                </div>
+
                 <div className="overflow-x-auto">
                     <table className="min-w-full bg-white border border-gray-200 rounded-lg">
                         <thead className="bg-[#F57931] text-white">
@@ -74,9 +96,9 @@ export const ReservationByRoomPage = () => {
                             {reservations.map((reservation: Reservation) => (
                                 <tr key={reservation.id} className="border-b">
                                     <td className="px-4 py-2">{reservation.id}</td>
-                                    <td className="px-4 py-2">{formatDate(reservation.reservationDate)}</td>
-                                    <td className="px-4 py-2">{formatDate(reservation.startTime)}</td>
-                                    <td className="px-4 py-2">{formatDate(reservation.endTime)}</td>
+                                    <td className="px-4 py-2">{formatDate(reservation.reservationDate, true, false)}</td>
+                                    <td className="px-4 py-2">{formatDate(reservation.startTime, false, true)}</td>
+                                    <td className="px-4 py-2">{formatDate(reservation.endTime, false, true)}</td>
                                     <td className="px-4 py-2">{reservation.status}</td>
                                     <td className="px-4 py-2">
                                         <button

@@ -58,7 +58,7 @@ export const RoomEditPage = () => {
       ],
     },
     onSubmit: async (values: Values) => {
-      await updateRoom(roomId!, values); //error del back
+      await updateRoom(roomId!, values); //todo: error del back
       navigate('/rooms');
     },
     validationSchema: Yup.object({

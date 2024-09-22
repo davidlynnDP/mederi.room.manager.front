@@ -6,6 +6,7 @@ import { Reservation } from '../../../domain/models';
 import { MederiLayout } from '../../layout'
 import { Pagination } from '../../../shared';
 import { formatDate } from '../../../config/helpers';
+import { ReservationStatus } from '../../../domain/enums';
 
 export const ReservationsPage = () => {
 
@@ -20,9 +21,10 @@ export const ReservationsPage = () => {
 
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = parseInt(searchParams.get("limit") || "10", 10);
+  const status: ReservationStatus = (searchParams.get("status") as ReservationStatus) || ReservationStatus.PENDIENTE;
 
   const fetchUsers = useCallback(async () => {
-    const { data, meta }: IFindAllReservation = await findAllReservations({ page, limit });
+    const { data, meta }: IFindAllReservation = await findAllReservations({ page, limit, status });
     setReservations(data);
     setMeta(meta);
     setIsLoading(false);
@@ -33,8 +35,14 @@ export const ReservationsPage = () => {
   }, [fetchUsers]);
 
   const handlePageChange = (newPage: number) => {
-    navigate(`?page=${newPage}&limit=${limit}`);
-    window.location.href = `?page=${newPage}&limit=${limit}`;
+    navigate(`?page=${newPage}&limit=${limit}&status=${status}`);
+    window.location.href = `?page=${newPage}&limit=${limit}&status=${status}`;
+  };
+
+  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = event.target.value as ReservationStatus;
+    navigate(`?page=${page}&limit=${limit}&status=${newStatus}`);
+    window.location.href = `?page=${page}&limit=${limit}&status=${newStatus}`;
   };
 
   if (isLoading) {
@@ -46,7 +54,7 @@ export const ReservationsPage = () => {
       </MederiLayout>
     );
   }
-
+  
   return (
     <MederiLayout>
       <div className="p-6 bg-white rounded-lg shadow-md">
@@ -60,6 +68,22 @@ export const ReservationsPage = () => {
           >
             Crear Reserva
           </button>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="status" className="mr-2 font-semibold text-[#F05A03]">
+            Filtrar por estado:
+          </label>
+          <select
+            id="status"
+            className="px-4 py-2 border rounded"
+            value={status}
+            onChange={handleStatusChange}
+          >
+            <option value={ReservationStatus.PENDIENTE}>Pendiente</option>
+            <option value={ReservationStatus.CONFIRMADO}>Confirmado</option>
+            <option value={ReservationStatus.CANCELADO}>Cancelado</option>
+          </select>
         </div>
 
         <div className="overflow-x-auto">

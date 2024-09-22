@@ -18,9 +18,10 @@ export const RoomsPage = () => {
 
   const page = parseInt(searchParams.get("page") || "1", 10);
   const limit = parseInt(searchParams.get("limit") || "10", 10);
+  const isAvailable = searchParams.get("isAvailable") === "true"
 
   const fetchRooms = useCallback(async () => {
-    const { data, meta }: IFindAllRooms = await findAllRooms({ page, limit });
+    const { data, meta }: IFindAllRooms = await findAllRooms({ page, limit, isAvailable });
     setRooms(data);
     setMeta(meta);
     setIsLoading(false);
@@ -31,8 +32,14 @@ export const RoomsPage = () => {
   }, [fetchRooms]);
 
   const handlePageChange = (newPage: number) => {
-    navigate(`?page=${newPage}&limit=${limit}`);
-    window.location.href = `?page=${newPage}&limit=${limit}`;
+    navigate(`?page=${newPage}&limit=${limit}&isAvailable=${isAvailable}`);
+    window.location.href = `?page=${newPage}&limit=${limit}&isAvailable=${isAvailable}`;
+  };
+
+  const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newAvailable = event.target.value === "true";
+    navigate(`?page=${page}&limit=${limit}&isAvailable=${newAvailable}`);
+    window.location.href = `?page=${page}&limit=${limit}&isAvailable=${newAvailable}`;
   };
 
   if (isLoading) {
@@ -49,15 +56,27 @@ export const RoomsPage = () => {
     <MederiLayout>
       <div className="p-6 bg-white rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-[#F05A03]">
-            Administración de Salas
-          </h1>
+          <h1 className="text-3xl font-bold text-[#F05A03]">Administración de Salas</h1>
           <button
             className="px-4 py-2 bg-[#F05A03] text-white rounded hover:bg-[#F57931]"
             onClick={() => navigate('/rooms/create')}
           >
             Crear Sala
           </button>
+        </div>
+
+        {/* Filtro de disponibilidad */}
+        <div className="mb-6">
+          <label htmlFor="status" className="mr-2 text-lg text-[#F05A03]">Disponibilidad:</label>
+          <select
+            id="status"
+            value={isAvailable.toString()}
+            onChange={handleStatusChange}
+            className="px-4 py-2 border border-gray-300 rounded-md"
+          >
+            <option value="true">Disponible</option>
+            <option value="false">No Disponible</option>
+          </select>
         </div>
 
         <div className="overflow-x-auto">
@@ -96,9 +115,8 @@ export const RoomsPage = () => {
           </table>
         </div>
 
-        {meta && (
-          <Pagination meta={meta} onPageChange={handlePageChange} />
-        )}
+        {/* Componente de paginación */}
+        {meta && <Pagination meta={meta} onPageChange={handlePageChange} />}
       </div>
     </MederiLayout>
   );
