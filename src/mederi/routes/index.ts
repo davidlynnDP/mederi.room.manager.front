@@ -1,0 +1,1 @@
+export { MederiRoutes } from "./MederiRoutes";
