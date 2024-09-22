@@ -78,9 +78,9 @@ export const ReservationsPage = () => {
               {reservations.map((reservation: Reservation) => (
                 <tr key={reservation.id} className="border-b">
                   <td className="px-4 py-2">{reservation.id}</td>
-                  <td className="px-4 py-2">{formatDate(reservation.reservationDate)}</td>
-                  <td className="px-4 py-2">{formatDate(reservation.startTime)}</td>
-                  <td className="px-4 py-2">{formatDate(reservation.endTime)}</td>
+                  <td className="px-4 py-2">{formatDate(reservation.reservationDate, true, false)}</td>
+                  <td className="px-4 py-2">{formatDate(reservation.startTime, false, true)}</td>
+                  <td className="px-4 py-2">{formatDate(reservation.endTime, false, true)}</td>
                   <td className="px-4 py-2">{reservation.status}</td>
                   <td className="px-4 py-2">
                     <button

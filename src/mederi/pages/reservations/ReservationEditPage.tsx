@@ -52,7 +52,7 @@ export const ReservationEditPage = () => {
       endTime: formattedEndTime,
     };
 
-    await updateReservation(reservationId!, payload);
+    await updateReservation(reservationId!, payload); //error en el backend
     navigate(`/reservations`);
   }
 
@@ -172,6 +172,22 @@ export const ReservationEditPage = () => {
               <div className="text-red-500">{errors.endTime}</div>
             ) : null}
           </div>
+          <div className="mb-4">
+            <label htmlFor="status" className="block text-gray-700">Estado de la Reserva</label>
+            <select
+              id="status"
+              {...getFieldProps('status')}
+              className={`mt-1 block w-full p-2 border rounded ${touched.status && errors.status ? 'border-red-500' : 'border-gray-300'}`}
+            >
+              <option value={ReservationStatus.PENDIENTE}>Pendiente</option>
+              <option value={ReservationStatus.CONFIRMADO}>Confirmado</option>
+              <option value={ReservationStatus.CANCELADO}>Cancelado</option>
+            </select>
+            {touched.status && errors.status ? (
+              <div className="text-red-500">{errors.status}</div>
+            ) : null}
+          </div>
+
           <button
             type="submit"
             disabled={isLoading}
@@ -181,12 +197,12 @@ export const ReservationEditPage = () => {
           </button>
 
           <button
-          type="button"
-          onClick={handleRemove}
-          className="w-full p-2 mt-4 bg-red-600 text-white font-bold hover:bg-red-700 rounded"
-        >
-          Eliminar Sala
-        </button>
+            type="button"
+            onClick={handleRemove}
+            className="w-full p-2 mt-4 bg-red-600 text-white font-bold hover:bg-red-700 rounded"
+          >
+            Eliminar Reserva
+          </button>
         </form>
       </div>
     </MederiLayout>

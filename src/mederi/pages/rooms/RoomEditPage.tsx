@@ -7,6 +7,7 @@ import { MederiContext } from '../../../context';
 import { MederiLayout } from '../../layout'
 import { Room } from '../../../domain/models';
 import { RoomType } from '../../../domain/enums';
+import { Modal } from '../../../shared';
 
 interface Resources {
   name: string;
@@ -28,6 +29,7 @@ export const RoomEditPage = () => {
   const navigate = useNavigate();
   const { findRoomById, updateRoom, deleteRoom } = useContext(MederiContext);
 
+  const [showModal, setShowModal] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
   const [selectedRoom, setSelectedRoom] = useState<Room>();
 
@@ -56,7 +58,7 @@ export const RoomEditPage = () => {
       ],
     },
     onSubmit: async (values: Values) => {
-      await updateRoom(roomId!, values);
+      await updateRoom(roomId!, values); //error del back
       navigate('/rooms');
     },
     validationSchema: Yup.object({
@@ -78,7 +80,16 @@ export const RoomEditPage = () => {
   });
 
   const handleRemove = async () => {
-    await deleteRoom(roomId!);
+    try {
+      await deleteRoom(roomId!);
+      navigate("/rooms");
+    } catch (error) {
+      setShowModal(true);
+    }
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
     navigate("/rooms");
   };
 
@@ -237,6 +248,14 @@ export const RoomEditPage = () => {
           Eliminar Sala
         </button>
       </div>
+
+      {showModal && (
+        <Modal
+          title="Error al eliminar la sala"
+          message="No se pueden eliminar salas que tienen reservas PENDIENTES."
+          onClose={closeModal}
+        />
+      )}
     </MederiLayout>
   );
 }

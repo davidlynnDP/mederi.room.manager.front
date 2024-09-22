@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { MederiContext } from '../../../context';
 import { Reservation } from '../../../domain/models';
 import { MederiLayout } from '../../layout'
+import { formatDate } from '../../../config/helpers';
 
 export const ReservationDetailPage = () => {
 
@@ -52,9 +53,9 @@ export const ReservationDetailPage = () => {
 
         <div className="mb-4">
           <h2 className="text-lg font-semibold">Información de la Reserva</h2>
-          <p className="text-gray-700">Fecha de Reservación: <span className="font-bold">{reservationDate}</span></p>
-          <p className="text-gray-700">Hora de Inicio: <span className="font-bold">{startTime}</span></p>
-          <p className="text-gray-700">Hora de Fin: <span className="font-bold">{endTime}</span></p>
+          <p className="text-gray-700">Fecha de Reservación: <span className="font-bold">{formatDate(reservationDate, true, false)}</span></p>
+          <p className="text-gray-700">Hora de Inicio: <span className="font-bold">{formatDate(startTime, false, true)}</span></p>
+          <p className="text-gray-700">Hora de Fin: <span className="font-bold">{formatDate(endTime, false, true)}</span></p>
           <p className="text-gray-700">Estado: <span className="font-bold">{status}</span></p>
         </div>
 
