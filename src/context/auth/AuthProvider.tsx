@@ -1,10 +1,11 @@
 import { FC, ReactNode, useEffect, useReducer, useState } from 'react';
+
 import { AuthContext } from './AuthContext';
 import { SignInParams, SignUpParams } from '../../domain/interfaces';
 import { authReducer } from './authReducer';
 import { AuthRepository } from '../../domain/repositories';
 import { AuthStatus, UserRole } from '../../domain/enums';
-import { MederiAuthRepositoyImpl } from '../../infrastructure/repositories/mederi.auth.repositoy.impl';
+import { MederiAuthRepositoyImpl } from '../../infrastructure/repositories';
 import { getDateTimeNow } from '../../config/helpers';
 
 export interface AuthState {
@@ -50,9 +51,8 @@ interface AuthProviderProps {
 
 export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
 
-    const [ state, dispatch ] = useReducer( authReducer, AUTH_INITIAL_STATE );
-    const [ status, setStatus ] = useState( AuthStatus.NotAuthenticated );
-    const [ isLoading, setIsLoading ] = useState<boolean>(false);
+    const [state, dispatch] = useReducer(authReducer, AUTH_INITIAL_STATE);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const authRepository: AuthRepository = new MederiAuthRepositoyImpl();
 
@@ -70,71 +70,64 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
                 status: AuthStatus.Authenticated
             };
             dispatch({ type: '[Auth] - Load User From LocalStorage', payload });
-            setStatus(AuthStatus.Authenticated);
         }
     }, []);
 
-    const signIn = async(signInParams: SignInParams) => {
+    const setLocalStorageData = (token: string, user: any) => {
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        localStorage.setItem('tokenIssuedAt', getDateTimeNow());
+    };
+
+    const clearLocalStorageData = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        localStorage.removeItem('tokenIssuedAt');
+    };
+
+    const handleRequest = async(requestFn: () => Promise<any>, onSuccess: (data: any) => void) => {
         try {
             setIsLoading(true);
-            const { token, user } = await authRepository.signIn(signInParams);
+            const data = await requestFn();
+            onSuccess(data);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const signIn = async(signInParams: SignInParams) =>
+        await handleRequest(() => authRepository.signIn(signInParams), ({ token, user }) => {
             const payload: AuthState = {
-                user: {
-                    data: user,
-                    token: token
-                },
-                status
-            }
+                user: { data: user, token },
+                status: AuthStatus.Authenticated,
+            };
             dispatch({ type: '[Auth] - Sign In', payload });
-            localStorage.setItem('token', token );
-            localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('tokenIssuedAt', getDateTimeNow() );
-            setIsLoading(false);
-        } catch ( error ) {
-            console.log( error );
-        }
-    };
+            setLocalStorageData(token, user);
+        });
 
-    const signUp = async(signUpParams: SignUpParams) => {
-        try {
-            setIsLoading(true);
-            const { token, user } = await authRepository.signUp( signUpParams );
+    const signUp = async(signUpParams: SignUpParams) =>
+        await handleRequest(() => authRepository.signUp(signUpParams), ({ token, user }) => {
             const payload: AuthState = {
-                user: {
-                    data: user,
-                    token: token
-                },
-                status
-            }
+                user: { data: user, token },
+                status: AuthStatus.Authenticated,
+            };
             dispatch({ type: '[Auth] - Sign Up', payload });
-            localStorage.setItem('token', token );
-            localStorage.setItem('user', JSON.stringify(user));
-            localStorage.setItem('tokenIssuedAt', getDateTimeNow() );
-            setIsLoading(false);
-        } catch ( error ) {
-            console.log( error );
-        }
-    };
+            setLocalStorageData(token, user);
+        });
 
-    const reNewToken = async() => {
-        try {
-            setIsLoading(true);
-            const { token } = await authRepository.reNewToken();
-            dispatch({ type: '[Auth] - Renew Token', payload: { token }});
-            localStorage.setItem('token', token );
-            localStorage.setItem('tokenIssuedAt', getDateTimeNow() );
-            setIsLoading(false);
-        } catch ( error ) {
-            console.log( error );
-        }
-    };
+    const reNewToken = async() =>
+        await handleRequest(() => authRepository.reNewToken(), ({ token }) => {
+            dispatch({ type: '[Auth] - Renew Token', payload: { token } });
+            localStorage.setItem('token', token);
+            localStorage.setItem('tokenIssuedAt', getDateTimeNow());
+        });
 
     const logout = () => {
         setIsLoading(true);
         dispatch({ type: '[Auth] - Logout' });
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('tokenIssuedAt');
+        clearLocalStorageData();
         setIsLoading(false);
     };
 
@@ -148,7 +141,7 @@ export const AuthProvider: FC<AuthProviderProps> = ({ children }) => {
             reNewToken,
             logout
         }}>
-            { children }
+            {children}
         </AuthContext.Provider>
     )
 }

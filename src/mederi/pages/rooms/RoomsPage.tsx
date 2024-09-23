@@ -1,40 +1,21 @@
-import { useContext, useState, useCallback, useEffect } from "react";
+import { useContext } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { MederiContext } from "../../../context";
-import { Meta, IFindAllRooms } from "../../../domain/interfaces";
 import { Room } from "../../../domain/models";
-import { Pagination } from "../../../shared";
+import { Loading, Pagination } from "../../../shared";
 import { MederiLayout } from "../../layout";
+import { useFetchMultipleData } from "../../../hooks";
 
 export const RoomsPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { findAllRooms } = useContext(MederiContext);
 
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [meta, setMeta] = useState<Meta>();
-
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const limit = parseInt(searchParams.get("limit") || "10", 10);
   const isAvailable = searchParams.get("isAvailable") === "true"
-
-  const fetchRooms = useCallback(async () => {
-    const { data, meta }: IFindAllRooms = await findAllRooms({ page, limit, isAvailable });
-    setRooms(data);
-    setMeta(meta);
-    setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchRooms();
-  }, [fetchRooms]);
-
-  const handlePageChange = (newPage: number) => {
-    navigate(`?page=${newPage}&limit=${limit}&isAvailable=${isAvailable}`);
-    window.location.href = `?page=${newPage}&limit=${limit}&isAvailable=${isAvailable}`;
-  };
+  const { data: rooms, meta, isLoading, handlePageChange, page, limit } = useFetchMultipleData<Room>({
+    fetchFunction: findAllRooms,
+    additionalParams: { isAvailable }
+  });
 
   const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newAvailable = event.target.value === "true";
@@ -44,11 +25,11 @@ export const RoomsPage = () => {
 
   if (isLoading) {
     return (
-      <MederiLayout>
-        <div className="flex items-center justify-center h-screen">
-          <p className="text-lg text-[#F05A03] font-semibold">Cargando, por favor espere...</p>
-        </div>
-      </MederiLayout>
+      <Loading
+        isLoading={isLoading}
+        errorMessage={`Error al cargar los datos de las salas`}
+        loadingMessage="Cargando, por favor espere..."
+      />
     );
   }
 

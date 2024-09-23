@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from 'yup';
@@ -6,6 +6,8 @@ import * as Yup from 'yup';
 import { MederiLayout } from "../../layout"
 import { AuthContext, MederiContext } from "../../../context";
 import { UserRole } from "../../../domain/enums";
+import { Loading } from "../../../shared";
+import { useFetchUser } from "../../../hooks";
 
 interface Values {
   identificationNumber?: string;
@@ -20,36 +22,8 @@ export const UserEditPage = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { user } = useContext( AuthContext );
-  const { updateUser, removeUser, findOneUser } = useContext( MederiContext );
-
-  const [loading, setLoading] = useState(true);
-  const [selectedUser, setSelectedUser] = useState<Values>();
-
-  useEffect(() => {
-    setTimeout(async () => {
-      if (user.data.role === UserRole.ADMINISTRADOR && userId) {
-        const fetchedUser = await findOneUser(userId);
-        setSelectedUser(fetchedUser);
-      } else {
-        const { id,
-                isActive,
-                createdAt,
-                updatedAt, ...resume } = user.data;
-        setSelectedUser( resume );
-      }
-      setLoading(false);
-    }, 1000);
-  }, []);
-  
-  if (!userId) {
-    return (
-      <MederiLayout>
-        <div className="text-center mt-10">
-          <p className="text-red-600 text-xl">Error: No se ha proporcionado un ID de usuario válido.</p>
-        </div>
-      </MederiLayout>
-    );
-  }
+  const { updateUser, removeUser } = useContext( MederiContext );
+  const { loading, selectedUser } = useFetchUser(userId!);
 
   const { handleSubmit, errors, touched, getFieldProps } = useFormik({
     initialValues: {
@@ -61,7 +35,7 @@ export const UserEditPage = () => {
     },
     onSubmit: async(values: Values) => {
       await updateUser(
-        userId,{
+        userId! ,{
           identificationNumber: values.identificationNumber,
           email: values.email,
           names: values.names,
@@ -94,6 +68,16 @@ export const UserEditPage = () => {
     await removeUser(userId!);
     navigate("/users");
   };
+
+  if (!userId || loading || !selectedUser) {
+    return (
+      <Loading
+        isLoading={loading}
+        errorMessage={`Error al cargar los datos del usuario...`}
+        loadingMessage="Cargando, por favor espere..."
+      />
+    );
+  }
 
   return (
     <MederiLayout>

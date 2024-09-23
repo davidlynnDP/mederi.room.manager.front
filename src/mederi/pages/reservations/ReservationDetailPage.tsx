@@ -1,46 +1,22 @@
-import { useContext, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MederiContext } from '../../../context';
-import { Reservation } from '../../../domain/models';
 import { MederiLayout } from '../../layout'
 import { formatDate } from '../../../config/helpers';
+import { Loading } from '../../../shared';
+import { useFetchReservation } from '../../../hooks';
 
 export const ReservationDetailPage = () => {
 
   const { reservationId } = useParams<{ reservationId: string }>();
   const navigate = useNavigate();
-  const { getReservationById } = useContext(MederiContext);
+  const { loading, selectedReservation } = useFetchReservation(reservationId!);
 
-  const [loading, setLoading] = useState(true);
-  const [selectedReservation, setSelectedReservation] = useState<Reservation>();
-
-  useEffect(() => {
-    setTimeout(async () => {
-      if (reservationId) { 
-        const fetchedReservation = await getReservationById(reservationId!);
-        setSelectedReservation(fetchedReservation);
-        setLoading(false);
-      }
-    }, 1000);
-  }, []);
-
-  if (loading) {
+  if (!reservationId || loading || !selectedReservation) {
     return (
-      <MederiLayout>
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-xl text-[#F57931]">Cargando datos de la reservacion...</p>
-        </div>
-      </MederiLayout>
-    );
-  }
-
-  if (!selectedReservation) {
-    return (
-      <MederiLayout>
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-xl text-red-600">Error al cargar los datos de la reservacion</p>
-        </div>
-      </MederiLayout>
+      <Loading
+        isLoading={loading}
+        errorMessage={`Error al cargar los datos de la reserva`}
+        loadingMessage="Cargando, por favor espere..."
+      />
     );
   }
 

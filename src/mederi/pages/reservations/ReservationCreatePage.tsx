@@ -1,12 +1,13 @@
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from 'yup';
 
 import { AuthContext, MederiContext } from "../../../context";
 import { MederiLayout } from "../../layout";
-import { IFindAllRooms } from "../../../domain/interfaces";
 import { Room } from "../../../domain/models";
+import { DEFECT_ALL } from "../../../config/helpers";
+import { useFetchMultipleData } from "../../../hooks";
 
 interface Values {
     userId: string;
@@ -19,30 +20,20 @@ interface Values {
 export const ReservationCreatePage = () => {
 
     const navigate = useNavigate();
-    const { createReservation, findAllRooms } = useContext( MederiContext );
+    const { createReservation, findAllRooms } = useContext(MederiContext);
     const { user } = useContext(AuthContext);
 
-    const [rooms, setRooms] = useState<Room[]>([]);
-  
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-  
-    const fetchRooms = useCallback(async () => {
-      const { data }: IFindAllRooms = await findAllRooms({ page: 1, limit: 999 });
-      setRooms(data);
-      setIsLoading(false);
-    }, []);
-  
-    useEffect(() => {
-      fetchRooms();
-    }, [fetchRooms]);
+    const { data: rooms, isLoading } = useFetchMultipleData<Room>({
+        fetchFunction: () => findAllRooms(DEFECT_ALL),
+    });
 
-    const onSubmit = async(values: Values) => {
+    const onSubmit = async (values: Values) => {
         const { userId, roomId, reservationDate, startTime, endTime } = values;
 
         const formattedReservationDate = new Date(`${reservationDate}T${startTime}:00Z`).toISOString();
         const formattedStartTime = new Date(`${reservationDate}T${startTime}:00Z`).toISOString();
         const formattedEndTime = new Date(`${reservationDate}T${endTime}:00Z`).toISOString();
-    
+
         const payload = {
             userId,
             roomId,
@@ -50,45 +41,45 @@ export const ReservationCreatePage = () => {
             startTime: formattedStartTime,
             endTime: formattedEndTime,
         };
-    
+
         await createReservation(payload);
         navigate(`/reservations`);
     }
 
     const { handleSubmit, errors, touched, getFieldProps } = useFormik({
-      initialValues: {
-        userId: user.data.id ? user.data.id : '',
-        roomId: '',
-        reservationDate: '',
-        startTime: '',
-        endTime: ''
-      },
-      onSubmit: onSubmit,
-      validationSchema: Yup.object({
-        userId: Yup.string().uuid('ID de usuario inválido').required('Requerido'),
-        roomId: Yup.string().uuid('ID de habitación inválido').required('Requerido'),
-        reservationDate: Yup.date()
-            .required('Requerido')
-            .min(new Date(), 'La fecha de reserva no puede ser menor que hoy'),
-        startTime: Yup.string()
-            .required('Requerido')
-            .test('is-valid-time', 'Hora de inicio inválida', value => {
-                return !!value && /^\d{2}:\d{2}$/.test(value);
-            }),
-        endTime: Yup.string()
-            .required('Requerido')
-            .test('is-valid-time', 'Hora de fin inválida', value => {
-                return !!value && /^\d{2}:\d{2}$/.test(value);
-            })
-            .test('is-after', 'La hora de fin debe ser posterior a la hora de inicio', function (value) {
-                const { startTime } = this.parent;
-                if (value && startTime) {
-                    const start = new Date(`1970-01-01T${startTime}:00`);
-                    const end = new Date(`1970-01-01T${value}:00`);
-                    return end > start;
-                }
-                return true;
-            }),
+        initialValues: {
+            userId: user.data.id ? user.data.id : '',
+            roomId: '',
+            reservationDate: '',
+            startTime: '',
+            endTime: ''
+        },
+        onSubmit: onSubmit,
+        validationSchema: Yup.object({
+            userId: Yup.string().uuid('ID de usuario inválido').required('Requerido'),
+            roomId: Yup.string().uuid('ID de habitación inválido').required('Requerido'),
+            reservationDate: Yup.date()
+                .required('Requerido')
+                .min(new Date(), 'La fecha de reserva no puede ser menor que hoy'),
+            startTime: Yup.string()
+                .required('Requerido')
+                .test('is-valid-time', 'Hora de inicio inválida', value => {
+                    return !!value && /^\d{2}:\d{2}$/.test(value);
+                }),
+            endTime: Yup.string()
+                .required('Requerido')
+                .test('is-valid-time', 'Hora de fin inválida', value => {
+                    return !!value && /^\d{2}:\d{2}$/.test(value);
+                })
+                .test('is-after', 'La hora de fin debe ser posterior a la hora de inicio', function (value) {
+                    const { startTime } = this.parent;
+                    if (value && startTime) {
+                        const start = new Date(`1970-01-01T${startTime}:00`);
+                        const end = new Date(`1970-01-01T${value}:00`);
+                        return end > start;
+                    }
+                    return true;
+                }),
         }),
     });
 
@@ -166,7 +157,7 @@ export const ReservationCreatePage = () => {
                     </div>
                     <button
                         type="submit"
-                        disabled={ isLoading }
+                        disabled={isLoading}
                         className="px-4 py-2 bg-[#F05A03] text-white rounded hover:bg-[#F57931]"
                     >
                         Crear Reserva

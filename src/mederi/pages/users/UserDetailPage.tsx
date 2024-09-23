@@ -1,29 +1,18 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext, MederiContext } from '../../../context';
 import { MederiLayout } from '../../layout'
 import { FaEdit, FaSignOutAlt } from 'react-icons/fa';
-import { User } from '../../../domain/models';
+import { Loading } from '../../../shared';
+import { useFetchUser } from '../../../hooks';
 
 export const UserDetailPage = () => {
 
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
-  const { purgeInfo, findOneUser } = useContext(MederiContext);
-
-  const [loading, setLoading] = useState(true);
-  const [selectedUser, setSelectedUser] = useState<User>();
-
-  useEffect(() => {
-    setTimeout(async () => {
-      if (userId) { 
-        const fetchedUser = await findOneUser(userId!);
-        setSelectedUser(fetchedUser);
-        setLoading(false);
-      }
-    }, 1000);
-  }, []);
+  const { purgeInfo } = useContext(MederiContext);
+  const { loading, selectedUser } = useFetchUser(userId!);
 
   const handleLogout = () => {
     logout();
@@ -31,23 +20,13 @@ export const UserDetailPage = () => {
     navigate('/auth/signin');
   };
 
-  if (loading) {
+  if (!userId || loading || !selectedUser) {
     return (
-      <MederiLayout>
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-xl text-[#F57931]">Cargando datos del usuario...</p>
-        </div>
-      </MederiLayout>
-    );
-  }
-
-  if (!selectedUser) {
-    return (
-      <MederiLayout>
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-xl text-red-600">Error al cargar los datos del usuario</p>
-        </div>
-      </MederiLayout>
+      <Loading
+        isLoading={loading}
+        errorMessage={`Error al cargar los datos del usuario...`}
+        loadingMessage="Cargando, por favor espere..."
+      />
     );
   }
 

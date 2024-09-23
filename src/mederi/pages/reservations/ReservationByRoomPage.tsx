@@ -1,12 +1,12 @@
-import { useContext, useState, useCallback, useEffect } from 'react';
+import { useContext } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { MederiContext } from '../../../context';
-import { Meta, IFindAllReservation } from '../../../domain/interfaces';
 import { Reservation } from '../../../domain/models';
 import { MederiLayout } from '../../layout'
 import { formatDate } from '../../../config/helpers';
-import { Pagination } from '../../../shared';
+import { Loading, Pagination } from '../../../shared';
 import { ReservationStatus } from '../../../domain/enums';
+import { useFetchMultipleData } from '../../../hooks';
 
 export const ReservationByRoomPage = () => {
 
@@ -15,31 +15,12 @@ export const ReservationByRoomPage = () => {
     const [searchParams] = useSearchParams();
     const { getReservationsByRoom } = useContext(MederiContext);
 
-    const [reservations, setReservations] = useState<Reservation[]>([]);
-    const [meta, setMeta] = useState<Meta>();
-    const [isLoading, setIsLoading] = useState<boolean>(true);
-
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    const limit = parseInt(searchParams.get("limit") || "10", 10);
     const status: ReservationStatus = (searchParams.get("status") as ReservationStatus) || ReservationStatus.PENDIENTE;
-
-    const fetchReservations = useCallback(async () => {
-        if (roomId) {
-            const { data, meta }: IFindAllReservation = await getReservationsByRoom(roomId, { page, limit });
-            setReservations(data);
-            setMeta(meta);
-            setIsLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchReservations();
-    }, [fetchReservations]);
-
-    const handlePageChange = (newPage: number) => {
-        navigate(`?page=${newPage}&limit=${limit}&status=${status}`);
-        window.location.href = `?page=${newPage}&limit=${limit}&status=${status}`;
-    };
+    const { data: reservations, meta, isLoading, handlePageChange, page, limit } = useFetchMultipleData<Reservation>({
+      fetchFunction: getReservationsByRoom,
+      fetchArgs: [roomId],
+      additionalParams: { status },
+    });
 
     const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         const newStatus = event.target.value as ReservationStatus;
@@ -49,13 +30,13 @@ export const ReservationByRoomPage = () => {
 
     if (isLoading) {
         return (
-            <MederiLayout>
-                <div className="flex items-center justify-center h-screen">
-                    <p className="text-lg text-[#F05A03] font-semibold">Cargando, por favor espere...</p>
-                </div>
-            </MederiLayout>
+          <Loading
+            isLoading={isLoading}
+            errorMessage={`Error al cargar los datos de las reservaciones`}
+            loadingMessage="Cargando, por favor espere..."
+          />
         );
-    }
+      }
 
     return (
         <MederiLayout>

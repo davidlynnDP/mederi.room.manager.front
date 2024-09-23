@@ -1,12 +1,14 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useFormik } from "formik";
 import * as Yup from 'yup';
 import { MederiContext, AuthContext } from '../../../context';
-import { IFindAllRooms } from '../../../domain/interfaces';
 import { Room } from '../../../domain/models';
 import { MederiLayout } from '../../layout';
 import { ReservationStatus } from '../../../domain/enums';
+import { DEFECT_ALL } from '../../../config/helpers';
+import { useFetchMultipleData } from '../../../hooks';
+import { Loading } from '../../../shared';
 
 interface Values {
   userId: string;
@@ -24,19 +26,9 @@ export const ReservationEditPage = () => {
   const { updateReservation, deleteReservation, findAllRooms } = useContext(MederiContext);
   const { user } = useContext(AuthContext);
 
-  const [rooms, setRooms] = useState<Room[]>([]);
-
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const fetchRooms = useCallback(async () => {
-    const { data }: IFindAllRooms = await findAllRooms({ page: 1, limit: 999 });
-    setRooms(data);
-    setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchRooms();
-  }, [fetchRooms]);
+  const { data: rooms, isLoading } = useFetchMultipleData<Room>({
+    fetchFunction: () => findAllRooms(DEFECT_ALL),
+  });
 
   const onSubmit = async (values: Values) => {
     const { reservationDate, startTime, endTime, ...resume } = values;
@@ -52,7 +44,7 @@ export const ReservationEditPage = () => {
       endTime: formattedEndTime,
     };
 
-    await updateReservation(reservationId!, payload); //todo: error en el backend
+    await updateReservation(reservationId!, payload);
     navigate(`/reservations`);
   }
 
@@ -99,6 +91,16 @@ export const ReservationEditPage = () => {
     await deleteReservation(reservationId!);
     navigate(`/reservations`);
   };
+
+  if (!reservationId || isLoading) {
+    return (
+      <Loading
+        isLoading={isLoading}
+        errorMessage={`Error al cargar los datos de la reserva`}
+        loadingMessage="Cargando, por favor espere..."
+      />
+    );
+  }
 
   return (
     <MederiLayout>

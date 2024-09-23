@@ -1,45 +1,21 @@
-import { useContext, useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MederiContext } from '../../../context';
-import { Room } from '../../../domain/models';
 import { MederiLayout } from '../../layout'
+import { Loading } from '../../../shared';
+import { useFetchRoom } from '../../../hooks';
 
 export const RoomDetailPage = () => {
 
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
-  const { findRoomById } = useContext(MederiContext);
+  const { loading, selectedRoom } = useFetchRoom(roomId!);
 
-  const [loading, setLoading] = useState(true);
-  const [selectedRoom, setSelectedRoom] = useState<Room>();
-
-  useEffect(() => {
-    setTimeout(async () => {
-      if (roomId) { 
-        const fetchedRoom = await findRoomById(roomId!);
-        setSelectedRoom(fetchedRoom);
-        setLoading(false);
-      }
-    }, 1000);
-  }, []);
-
-  if (loading) {
+  if (!roomId || loading || !selectedRoom) {
     return (
-      <MederiLayout>
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-xl text-[#F57931]">Cargando datos de la sala...</p>
-        </div>
-      </MederiLayout>
-    );
-  }
-
-  if (!selectedRoom) {
-    return (
-      <MederiLayout>
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-xl text-red-600">Error al cargar los datos de la sala</p>
-        </div>
-      </MederiLayout>
+      <Loading
+        isLoading={loading}
+        errorMessage={`Error al cargar los datos de la sala`}
+        loadingMessage="Cargando, por favor espere..."
+      />
     );
   }
 

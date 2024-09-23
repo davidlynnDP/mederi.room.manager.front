@@ -1,42 +1,23 @@
-import { useCallback, useContext, useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { AuthContext, MederiContext } from "../../../context";
 import { MederiLayout } from "../../layout";
 import { User } from "../../../domain/models";
 import { UserRole } from "../../../domain/enums";
-import { Modal, Pagination } from "../../../shared";
-import { IFindAllUsers, Meta } from "../../../domain/interfaces";
+import { Loading, Modal, Pagination } from "../../../shared";
+import { useFetchMultipleData, useModal } from "../../../hooks";
 
 export const UsersPage = () => {
+
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { user } = useContext(AuthContext);
   const { findAllUsers } = useContext(MederiContext);
+  const { showModal, closeModal, setShowModal} = useModal("/");
 
-  const [users, setUsers] = useState<User[]>([]);
-  const [meta, setMeta] = useState<Meta>();
-
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const limit = parseInt(searchParams.get("limit") || "10", 10);
-
-  const fetchUsers = useCallback(async () => {
-    try {
-      if (user.data.role !== UserRole.EMPLEADO) {
-        const { data, meta }: IFindAllUsers = await findAllUsers({ page, limit });
-        setUsers(data);
-        setMeta(meta);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+  const { data: users, meta, isLoading, handlePageChange } = useFetchMultipleData<User>({
+    fetchFunction: findAllUsers,
+  });
 
   useEffect(() => {
     if (user.data.role !== UserRole.ADMINISTRADOR) {
@@ -44,23 +25,13 @@ export const UsersPage = () => {
     }
   }, [user]);
 
-  const closeModal = () => {
-    setShowModal(false);
-    navigate("/");
-  };
-
-  const handlePageChange = (newPage: number) => {
-    navigate(`?page=${newPage}&limit=${limit}`);
-    window.location.href = `?page=${newPage}&limit=${limit}`;
-  };
-
   if (isLoading) {
     return (
-      <MederiLayout>
-        <div className="flex items-center justify-center h-screen">
-          <p className="text-lg text-[#F05A03] font-semibold">Cargando, por favor espere...</p>
-        </div>
-      </MederiLayout>
+      <Loading
+        isLoading={isLoading}
+        errorMessage={`Error al cargar los datos de los usuarios`}
+        loadingMessage="Cargando, por favor espere..."
+      />
     );
   }
 

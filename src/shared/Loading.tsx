@@ -1,17 +1,26 @@
-import React from 'react';
+import React from "react";
+import { MederiLayout } from "../mederi/layout";
 
-export const Loading: React.FC = () => {
+interface LoadingOrErrorProps {
+  isLoading: boolean;
+  errorMessage?: string;
+  loadingMessage?: string;
+}
+
+export const Loading: React.FC<LoadingOrErrorProps> = ({
+  isLoading,
+  errorMessage,
+  loadingMessage = "Cargando, por favor espere...",
+}) => {
   return (
-    <div className="flex justify-center items-center h-full">
-      <div className="relative">
-        {/* Outer Ring */}
-        <div className="w-16 h-16 border-4 border-[#F57931] border-dashed rounded-full animate-spin"></div>
-
-        {/* Inner Circle */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-8 h-8 bg-[#F05A03] rounded-full animate-pulse"></div>
-        </div>
+    <MederiLayout>
+      <div className="flex items-center justify-center h-screen">
+        {isLoading ? (
+          <p className="text-lg text-[#F05A03] font-semibold">{loadingMessage}</p>
+        ) : errorMessage ? (
+          <p className="text-lg text-red-500 font-semibold">{errorMessage}</p>
+        ) : null}
       </div>
-    </div>
+    </MederiLayout>
   );
 };

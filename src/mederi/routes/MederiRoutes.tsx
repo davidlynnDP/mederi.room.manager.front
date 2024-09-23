@@ -25,14 +25,12 @@ export const MederiRoutes = () => {
         element={ <SummaryPage /> } 
       />
 
-      {/* Rutas para usuarios */}
       <Route path="users" >
         <Route index element={ <UsersPage /> } />
         <Route path=":userId" element={ <UserDetailPage /> } />
         <Route path=":userId/edit" element={ <UserEditPage /> } />
       </Route>
 
-      {/* Rutas para habitaciones */}
       <Route path="rooms">
         <Route index element={ <RoomsPage /> } />
         <Route path="create" element={ <RoomCreatePage /> } />
@@ -40,7 +38,6 @@ export const MederiRoutes = () => {
         <Route path=":roomId/edit" element={ <RoomEditPage /> } />
       </Route>
 
-      {/* Rutas para reservaciones */}
       <Route path="reservations">
         <Route index element={ <ReservationsPage /> } />
         <Route path="create" element={ <ReservationCreatePage /> } />
@@ -49,8 +46,6 @@ export const MederiRoutes = () => {
         <Route path="user/:userId" element={ <ReservationByUserPage /> } />
         <Route path="room/:roomId" element={ <ReservationByRoomPage /> } />
       </Route>
-
-      {/* sigue aqui con las demas rutas */}
 
       <Route path="/*" element={ <Navigate to="/" /> } />
 

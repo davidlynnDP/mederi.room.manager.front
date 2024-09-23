@@ -10,11 +10,11 @@ interface IRoute {
 
 export const publicRoutes: IRoute[] = [
   {
-    path: "signin",
+    path: "/auth/signin",
     element: <LoginPage />,
   },
   {
-    path: "signup",
+    path: "/auth/signup",
     element: <RegisterPage />,
   },
   {

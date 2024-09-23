@@ -10,7 +10,9 @@ import { SummaryPage,
          ReservationsPage, 
          ReservationDetailPage, 
          ReservationByUserPage, 
-         ReservationByRoomPage } from "../mederi/pages";
+         ReservationByRoomPage,
+         ReservationCreatePage,
+         ReservationEditPage } from "../mederi/pages";
 
 
 interface IRoute {
@@ -60,6 +62,14 @@ interface IRoute {
       path: "reservations",
       element: <ReservationsPage />,
       children: [
+        {
+          path: "create",
+          element: <ReservationCreatePage />,
+        },
+        {
+          path: ":reservationId/edit",
+          element: <ReservationEditPage />,
+        },
         {
           path: ":reservationId",
           element: <ReservationDetailPage />,

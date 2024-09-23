@@ -1,13 +1,13 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useFormik } from "formik";
 import * as Yup from 'yup';
 
 import { MederiContext } from '../../../context';
 import { MederiLayout } from '../../layout'
-import { Room } from '../../../domain/models';
 import { RoomType } from '../../../domain/enums';
-import { Modal } from '../../../shared';
+import { Loading, Modal } from '../../../shared';
+import { useFetchRoom, useModal } from '../../../hooks';
 
 interface Resources {
   name: string;
@@ -27,21 +27,9 @@ export const RoomEditPage = () => {
 
   const { roomId } = useParams<{ roomId: string }>();
   const navigate = useNavigate();
-  const { findRoomById, updateRoom, deleteRoom } = useContext(MederiContext);
-
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [loading, setLoading] = useState(true);
-  const [selectedRoom, setSelectedRoom] = useState<Room>();
-
-  useEffect(() => {
-    setTimeout(async () => {
-      if (roomId) {
-        const fetchedRoom = await findRoomById(roomId!);
-        setSelectedRoom(fetchedRoom);
-        setLoading(false);
-      }
-    }, 1000);
-  }, []);
+  const { showModal, closeModal, setShowModal } = useModal("/rooms");
+  const { updateRoom, deleteRoom } = useContext(MederiContext);
+  const { loading, selectedRoom } = useFetchRoom(roomId!);
 
   const { handleSubmit, errors, touched, getFieldProps, values, setFieldValue } = useFormik({
     initialValues: {
@@ -58,7 +46,7 @@ export const RoomEditPage = () => {
       ],
     },
     onSubmit: async (values: Values) => {
-      await updateRoom(roomId!, values); //todo: error del back
+      await updateRoom(roomId!, values);
       navigate('/rooms');
     },
     validationSchema: Yup.object({
@@ -88,11 +76,6 @@ export const RoomEditPage = () => {
     }
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-    navigate("/rooms");
-  };
-
   const addNewItem = () => {
     setFieldValue('resources', [
       ...values.resources,
@@ -109,23 +92,13 @@ export const RoomEditPage = () => {
     setFieldValue('resources', updatedItems);
   };
 
-  if (loading) {
+  if (!roomId || loading || !selectedRoom) {
     return (
-      <MederiLayout>
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-xl text-[#F57931]">Cargando datos de la sala...</p>
-        </div>
-      </MederiLayout>
-    );
-  }
-
-  if (!selectedRoom) {
-    return (
-      <MederiLayout>
-        <div className="flex justify-center items-center h-screen">
-          <p className="text-xl text-red-600">Error al cargar los datos de la sala</p>
-        </div>
-      </MederiLayout>
+      <Loading
+        isLoading={loading}
+        errorMessage={`Error al cargar los datos de la sala`}
+        loadingMessage="Cargando, por favor espere..."
+      />
     );
   }
 

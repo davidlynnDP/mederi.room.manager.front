@@ -10,9 +10,9 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <MederiProvider>
+        <MederiProviderDry>
           <AppRouter/>
-        </MederiProvider>
+        </MederiProviderDry>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>,

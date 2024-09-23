@@ -19,12 +19,10 @@ export const formatDate = (
         return `${formattedDate}, ${formattedTime}`;
     }
 
-    // Si solo showDate es true, se muestra solo la fecha
     if (showDate && !showTime) {
         return formattedDate;
     }
 
-    // Si solo showTime es true, se muestra solo la hora
     if (!showDate && showTime) {
         return formattedTime;
     }

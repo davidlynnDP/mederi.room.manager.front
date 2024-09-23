@@ -1,37 +1,36 @@
-import { useContext, useState, useCallback, useEffect } from "react";
+import { useContext } from "react";
 import { Pie, Bar } from 'react-chartjs-2';
 import { Chart, ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
 
 import { MederiContext } from "../../../context";
-import { IFindAllReservation, IFindAllRooms } from "../../../domain/interfaces";
 import { Reservation, Room } from "../../../domain/models";
 import { MederiLayout } from "../../layout";
+import { DEFECT_ALL } from "../../../config/helpers";
+import { useFetchMultipleData } from "../../../hooks";
 
 Chart.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
+
+const ChartComponent = ({ data, title, type }: { data: any; title: string; type: 'pie' | 'bar' }) => {
+  const ChartType = type === 'pie' ? Pie : Bar;
+
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <h2 className="text-xl font-semibold mb-4">{title}</h2>
+      <ChartType data={data} />
+    </div>
+  );
+};
+
 export const SummaryPage = () => {
+
   const { findAllRooms, findAllReservations } = useContext(MederiContext);
-
-  const [rooms, setRooms] = useState<Room[]>([]);
-  const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  const fetchRooms = useCallback(async () => {
-    const { data }: IFindAllRooms = await findAllRooms({ page: 1, limit: 999 });
-    setRooms(data);
-    setIsLoading(false);
-  }, []);
-
-  const fetchReservations = useCallback(async () => {
-    const { data }: IFindAllReservation = await findAllReservations({ page: 1, limit: 999 });
-    setReservations(data);
-    setIsLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchRooms();
-    fetchReservations();
-  }, [fetchRooms, fetchReservations]);
+  const { data: rooms } = useFetchMultipleData<Room>({
+    fetchFunction: () => findAllRooms(DEFECT_ALL),
+  });
+  const { data: reservations } = useFetchMultipleData<Reservation>({
+    fetchFunction: () => findAllReservations(DEFECT_ALL),
+  });
 
   const totalRooms = rooms.length;
   const totalCapacity = rooms.reduce((acc, room) => acc + room.capacity, 0);
@@ -91,17 +90,9 @@ export const SummaryPage = () => {
           </div>
         </div>
 
-        {/* Gráficos de distribución */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">Distribución por Tipo de Sala</h2>
-            <Pie data={roomTypeChartData} />
-          </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-4">Distribución de Estados de Reservas</h2>
-            <Bar data={reservationStatusChartData} />
-          </div>
+          <ChartComponent data={roomTypeChartData} title="Distribución por Tipo de Sala" type="pie" />
+          <ChartComponent data={reservationStatusChartData} title="Distribución de Estados de Reservas" type="bar" />
         </div>
       </div>
     </MederiLayout>
