@@ -12,7 +12,7 @@ import {
 } from "../../domain/interfaces";
 import { User, Room, Reservation } from "../../domain/models";
 import { MederiRepository } from "../../domain/repositories";
-import { MederiDatasourceImpl } from "../datasources/mederi.datasource.impl";
+import { MederiDatasourceImpl, MederiDryDatasourceImpl } from "../datasources";
 
 
 export class MederiRepositoryImpl implements MederiRepository {
