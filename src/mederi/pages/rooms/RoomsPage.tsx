@@ -46,7 +46,6 @@ export const RoomsPage = () => {
           </button>
         </div>
 
-        {/* Filtro de disponibilidad */}
         <div className="mb-6">
           <label htmlFor="status" className="mr-2 text-lg text-[#F05A03]">Disponibilidad:</label>
           <select
@@ -96,7 +95,6 @@ export const RoomsPage = () => {
           </table>
         </div>
 
-        {/* Componente de paginación */}
         {meta && <Pagination meta={meta} onPageChange={handlePageChange} />}
       </div>
     </MederiLayout>

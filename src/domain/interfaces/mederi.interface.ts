@@ -1,7 +1,5 @@
 import { ReservationStatus, RoomType, UserRole } from "../enums";
 
-
-//users
 export interface UpdateUserParams {
     identificationNumber?: string;
     email?: string;
@@ -12,8 +10,6 @@ export interface UpdateUserParams {
     isActive?: boolean;
 }
 
-
-//rooms
 export interface CreateRoomParams {
     name: string;
     capacity: number;
@@ -45,8 +41,6 @@ export interface UpdateRoomResourceParams {
     description?: string;
 }
 
-
-//reservations
 export interface CreateReservationsParams {
     userId: string;
     roomId: string;

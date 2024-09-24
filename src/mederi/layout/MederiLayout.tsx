@@ -25,18 +25,15 @@ export const MederiLayout: FC<MederiLayoutProps> = ({ children }) => {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
 
-      {/* Navbar */}
       <nav className="bg-[#FF853E] text-white p-4">
         <div className="container mx-auto flex justify-between items-center">
           
-          {/* Logo */}
           <div className="flex items-center space-x-4">
             <Link to="/">
               <img src="/images/mederi.png" alt="Logo Méderi" className="h-10" />
             </Link>
           </div>
 
-          {/* Navigation Links */}
           <div className="flex space-x-4">
             {navItems.map(({ path, text }) => (
               <Link
@@ -51,7 +48,6 @@ export const MederiLayout: FC<MederiLayoutProps> = ({ children }) => {
             ))}
           </div>
 
-          {/* User Account */}
           <div className="flex items-center space-x-4">
             <Link
               to={`/users/${ user.data.id }`}
@@ -65,12 +61,10 @@ export const MederiLayout: FC<MederiLayoutProps> = ({ children }) => {
         </div>
       </nav>
 
-      {/* Main Content */}
       <main className="flex-grow container mx-auto p-6">
         {children}
       </main>
 
-      {/* Footer */}
       <footer className="bg-[#F05A03] text-white text-center py-4">
         © 2024 Méderi - Todos los derechos reservados.
       </footer>

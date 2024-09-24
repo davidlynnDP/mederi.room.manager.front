@@ -1,15 +1,13 @@
 import { MederiDataSource } from "../../domain/datasources";
-import {
-    PaginationParams,
-    UpdateUserParams,
-    CreateRoomParams,
-    UpdateRoomParams,
-    CreateReservationsParams,
-    UpdateReservationsParams,
-    IFindAllReservation,
-    IFindAllUsers,
-    IFindAllRooms
-} from "../../domain/interfaces";
+import { PaginationParams,
+         UpdateUserParams,
+         CreateRoomParams,
+         UpdateRoomParams,
+         CreateReservationsParams,
+         UpdateReservationsParams,
+         IFindAllReservation,
+         IFindAllUsers,
+         IFindAllRooms } from "../../domain/interfaces";
 import { User, Room, Reservation } from "../../domain/models";
 import { MederiRepository } from "../../domain/repositories";
 import { MederiDatasourceImpl, MederiDryDatasourceImpl } from "../datasources";

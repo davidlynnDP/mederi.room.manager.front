@@ -107,7 +107,7 @@ export const RoomEditPage = () => {
       <div className="p-6 bg-white rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-[#F05A03] mb-6">Editar Sala</h1>
         <form onSubmit={handleSubmit}>
-          {/* Nombre */}
+
           <div className="mb-4">
             <label className="block text-[#F05A03] font-semibold">Nombre de la Sala</label>
             <input
@@ -118,7 +118,6 @@ export const RoomEditPage = () => {
             {touched.name && errors.name && <div className="text-red-500">{errors.name}</div>}
           </div>
 
-          {/* Capacidad */}
           <div className="mb-4">
             <label className="block text-[#F05A03] font-semibold">Capacidad</label>
             <input
@@ -129,7 +128,6 @@ export const RoomEditPage = () => {
             {touched.capacity && errors.capacity && <div className="text-red-500">{errors.capacity}</div>}
           </div>
 
-          {/* Ubicación */}
           <div className="mb-4">
             <label className="block text-[#F05A03] font-semibold">Ubicación</label>
             <input
@@ -140,7 +138,6 @@ export const RoomEditPage = () => {
             {touched.location && errors.location && <div className="text-red-500">{errors.location}</div>}
           </div>
 
-          {/* Tipo de Sala */}
           <div className="mb-4">
             <label className="block text-[#F05A03] font-semibold">Tipo de Sala</label>
             <select
@@ -155,7 +152,6 @@ export const RoomEditPage = () => {
             {touched.roomType && errors.roomType && <div className="text-red-500">{errors.roomType}</div>}
           </div>
 
-          {/* Recursos */}
           {values.resources.map((_, index) => (
             <div key={index} className="mb-4 border border-gray-200 p-4 rounded relative">
               <h3 className="text-[#F05A03] font-semibold mb-2">Recurso #{index + 1}</h3>

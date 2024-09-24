@@ -83,7 +83,7 @@ export const RoomCreatePage = () => {
       <div className="p-6 bg-white rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-[#F05A03] mb-6">Crear Sala</h1>
         <form onSubmit={handleSubmit}>
-          {/* Nombre */}
+
           <div className="mb-4">
             <label className="block text-[#F05A03] font-semibold">Nombre de la Sala</label>
             <input
@@ -98,7 +98,6 @@ export const RoomCreatePage = () => {
             ) : null}
           </div>
 
-          {/* Capacidad */}
           <div className="mb-4">
             <label className="block text-[#F05A03] font-semibold">Capacidad</label>
             <input
@@ -113,7 +112,6 @@ export const RoomCreatePage = () => {
             ) : null}
           </div>
 
-          {/* Ubicación */}
           <div className="mb-4">
             <label className="block text-[#F05A03] font-semibold">Ubicación</label>
             <input
@@ -128,7 +126,6 @@ export const RoomCreatePage = () => {
             ) : null}
           </div>
 
-          {/* Tipo de Sala */}
           <div className="mb-4">
             <label className="block text-[#F05A03] font-semibold">Tipo de Sala</label>
             <select
@@ -147,7 +144,6 @@ export const RoomCreatePage = () => {
             ) : null}
           </div>
 
-          {/* Recursos */}
           {values.resources.map((_, index) => (
             <div key={index} className="mb-4 border border-gray-200 p-4 rounded relative">
               <h3 className="text-[#F05A03] font-semibold mb-2">Recurso #{index + 1}</h3>
