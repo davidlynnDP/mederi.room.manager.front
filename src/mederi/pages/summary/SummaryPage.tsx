@@ -75,7 +75,7 @@ export const SummaryPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h2 className="text-xl font-semibold mb-2">Total de Habitaciones</h2>
+            <h2 className="text-xl font-semibold mb-2">Total de Salas</h2>
             <p className="text-3xl font-bold text-[#F05A03]">{totalRooms}</p>
           </div>
 
